@@ -4,29 +4,34 @@ require "./assets/Helper/helpers.php";
 require "./assets/Helper/jdf.php";
 global $i;
 if (!(isset($_SESSION['username']))) {
-     header("location:login.php");
+    header("location:login.php");
 }
-if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
-     $id = $_GET['id'];
-     $sql = "SELECT * from products WHERE product_id =?";
-     $stmt = $db->prepare($sql);
-     $stmt->execute([$id]);
-     $product = $stmt->fetch();
-     if ($product == null) {
-          header("location:productlist.php");
-     } else {
-          // $sql = "SELECT buyfactor.buy_date,buyfactor.product_qty as buy_qty,buyfactor.factor_fi as buy_fi,products.product_name,sellfactors.sell_date,sellfactors.product_qty as sell_qty,sellfactors.factor_fi as sell_fi, FROM buyfactor,products,sellfactors where buyfactor.product_id=sellfactors.product_id and buyfactor.product_id=? and sellfactors.product_id=? order by ";
-          $sql = "SELECT buyfactor.buyfactor_id,buyfactor.credit_prod_after,buyfactor.buy_date,buyfactor.product_qty,buyfactor.factor_fi,products.product_name from buyfactor,products where buyfactor.product_id=? and buyfactor.product_id=products.product_id order by buyfactor.buy_date ";
-          $stmt = $db->prepare($sql);
-          $stmt->execute([$id]);
-          $buys = $stmt->fetchAll();
-          $sql = "SELECT sellfactors.sellfactor_id,sellfactors.credit_after_sell,sellfactors.sell_date,sellfactors.product_qty,sellfactors.factor_fi,products.product_name from sellfactors,products where sellfactors.product_id=? and sellfactors.product_id=products.product_id order by sellfactors.sell_date ";
-          $stmt = $db->prepare($sql);
-          $stmt->execute([$id]);
-          $sells = $stmt->fetchAll();
-     }
+if($_SESSION['permition'] == '1' || $_SESSION['permition'] =='2') {
+
+    if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
+        $id = $_GET['id'];
+        $sql = "SELECT * from products WHERE product_id =?";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$id]);
+        $product = $stmt->fetch();
+        if ($product == null) {
+            header("location:productlist.php");
+        } else {
+            // $sql = "SELECT buyfactor.buy_date,buyfactor.product_qty as buy_qty,buyfactor.factor_fi as buy_fi,products.product_name,sellfactors.sell_date,sellfactors.product_qty as sell_qty,sellfactors.factor_fi as sell_fi, FROM buyfactor,products,sellfactors where buyfactor.product_id=sellfactors.product_id and buyfactor.product_id=? and sellfactors.product_id=? order by ";
+            $sql = "SELECT buyfactor.buyfactor_id,buyfactor.credit_prod_after,buyfactor.buy_date,buyfactor.product_qty,buyfactor.factor_fi,products.product_name from buyfactor,products where buyfactor.product_id=? and buyfactor.product_id=products.product_id order by buyfactor.buy_date ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$id]);
+            $buys = $stmt->fetchAll();
+            $sql = "SELECT sellfactors.sellfactor_id,sellfactors.credit_after_sell,sellfactors.sell_date,sellfactors.product_qty,sellfactors.factor_fi,products.product_name from sellfactors,products where sellfactors.product_id=? and sellfactors.product_id=products.product_id order by sellfactors.sell_date ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$id]);
+            $sells = $stmt->fetchAll();
+        }
+    } else {
+        header("location:productlist.php");
+    }
 } else {
-     header("location:productlist.php");
+    header("location:./menu.php");
 }
 ?>
 
@@ -53,8 +58,8 @@ if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
 
         <?php
           require_once "./template/sidebar.php";
-          require_once "./template/header.php";
-          ?>
+require_once "./template/header.php";
+?>
         <div class="purchasecontainer">
             <div class="container-fluid invoice-container">
 
@@ -94,7 +99,7 @@ if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
                                         <tbody>
 
                                             <?php $i = 1;
-                                                       foreach ($buys as $buy) { ?>
+foreach ($buys as $buy) { ?>
                                             <tr>
                                                 <td class="col-3 text-center"><?= $buy->credit_prod_after ?></td>
                                                 <td class="col-3 text-center">
@@ -110,10 +115,10 @@ if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
                                                 <td class="col-3 text-center"><?= $i ?></td>
                                             </tr>
                                             <?php ++$i;
-                                                       } ?>
+} ?>
 
                                             <?php
-                                                       foreach ($sells as $sell) { ?>
+foreach ($sells as $sell) { ?>
 
                                             <tr>
                                                 <td class="col-3 text-center"><?= $sell->credit_after_sell ?></td>
@@ -130,7 +135,7 @@ if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
                                                 <td class="col-3 text-center"><?= $i ?></td>
                                             </tr>
                                             <?php ++$i;
-                                                       } ?>
+} ?>
                                         </tbody>
 
                                     </table>

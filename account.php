@@ -5,25 +5,29 @@ global $db;
 if (!(isset($_SESSION['username']))) {
     header("location:./login.php");
 }
+if($_SESSION['permition'] == '1' || $_SESSION['permition'] =='2') {
+    if (isset($_POST['submit'])) {
+        $errors = [];
+        date_default_timezone_set('Iran');
 
-if (isset($_POST['submit'])) {
-    $errors = [];
-    date_default_timezone_set('Iran');
-
-    $sql = "SELECT * FROM personaccount where cust_name=?";
-    $stmt = $db->prepare($sql);
-    $stmt->execute([$_POST['cust_name']]);
-    $person = $stmt->fetch();
-
-    if ($person == null) {
-        $token = 1;
-        $sql = "INSERT INTO personaccount SET account_type=?,cust_name=?,cust_codemeli=?,cust_address=?,cust_mobile=?,total_credit=? ";
+        $sql = "SELECT * FROM personaccount where cust_name=?";
         $stmt = $db->prepare($sql);
-        $stmt->execute([$_POST['account_type'], $_POST['cust_name'], $_POST['cust_codemeli'], $_POST['cust_address'], $_POST['cust_mobile'], $_POST['total_credit']]);
-    } else {
-        $token = 0;
-        $errors[] = "این شخص / طرف حساب در سیستم موجود می باشد";
+        $stmt->execute([$_POST['cust_name']]);
+        $person = $stmt->fetch();
+
+        if ($person == null) {
+            $token = 1;
+            $sql = "INSERT INTO personaccount SET account_type=?,cust_name=?,cust_codemeli=?,cust_address=?,cust_mobile=?,total_credit=? ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$_POST['account_type'], $_POST['cust_name'], $_POST['cust_codemeli'], $_POST['cust_address'], $_POST['cust_mobile'], $_POST['total_credit']]);
+        } else {
+            $token = 0;
+            $errors[] = "این شخص / طرف حساب در سیستم موجود می باشد";
+        }
     }
+} else {
+    header("location:./menu.php");
+
 }
 
 
@@ -52,8 +56,8 @@ if (isset($_POST['submit'])) {
 
         <?php
         require_once "./template/sidebar.php";
-        require_once "./template/header.php";
-        ?>
+require_once "./template/header.php";
+?>
 
         <div class="flex wrapper">
             <div class="title">
@@ -127,8 +131,8 @@ if (isset($_POST['submit'])) {
 
                     </div>
                     <?php
-                    if (isset($_POST['submit']) && $token == 1 && $_POST['account_type'] == 1) {
-                        echo "
+            if (isset($_POST['submit']) && $token == 1 && $_POST['account_type'] == 1) {
+                echo "
         <script>
         setTimeout(function() {
             swal('طرف حساب {$_POST['cust_name']} اضافه شد','تا لحظاتی دیگر به کاردکس اشخاص منتقل می شوید', 'success')
@@ -138,12 +142,12 @@ if (isset($_POST['submit'])) {
         }, 5000);
         </script>
         ";
-                    }
-                    ?>
+            }
+?>
 
                     <?php
-                    if (isset($_POST['submit'])  && $token == 1 && $_POST['account_type'] == 3) {
-                        echo "
+if (isset($_POST['submit'])  && $token == 1 && $_POST['account_type'] == 3) {
+    echo "
         <script>
         setTimeout(function() {
             swal('صندوق / بانک {$_POST['cust_name']} اضافه شد','تا لحظاتی دیگر به کاردکس صندوق/بانک منتقل می شوید', 'success')
@@ -153,8 +157,8 @@ if (isset($_POST['submit'])) {
         }, 5000);
         </script>
         ";
-                    }
-                    ?>
+}
+?>
                 </form>
             </div>
         </div>

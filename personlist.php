@@ -5,13 +5,18 @@ require "./assets/Helper/jdf.php";
 if (!(isset($_SESSION['username']))) {
     header("location:login.php");
 }
-global $db;
-// $sql = "SELECT buyfactor.buy_date,buyfactor.product_qty,buyfactor.factor_fi,products.product_name,sellfactors.sell_date,sellfactors.product_qty as sell_qty,sellfactors.factor_fi as sell_fi, FROM buyfactor,products,sellfactors where buyfactor.  "
-$sql = "SELECT * from personaccount where account_type ='1'";
-$stmt = $db->prepare($sql);
-$stmt->execute();
-$persons = $stmt->fetchAll();
+if($_SESSION['permition'] == '1' || $_SESSION['permition'] =='2') {
 
+    global $db;
+    // $sql = "SELECT buyfactor.buy_date,buyfactor.product_qty,buyfactor.factor_fi,products.product_name,sellfactors.sell_date,sellfactors.product_qty as sell_qty,sellfactors.factor_fi as sell_fi, FROM buyfactor,products,sellfactors where buyfactor.  "
+    $sql = "SELECT * from personaccount where account_type ='1'";
+    $stmt = $db->prepare($sql);
+    $stmt->execute();
+    $persons = $stmt->fetchAll();
+} else {
+    header("location:./menu.php");
+
+}
 ?>
 
 <!DOCTYPE html>
@@ -38,8 +43,8 @@ $persons = $stmt->fetchAll();
 
         <?php
         require_once "./template/sidebar.php";
-        require_once "./template/header.php";
-        ?>
+require_once "./template/header.php";
+?>
         <div class="purchasecontainer">
             <div class="container-fluid invoice-container">
 
@@ -74,83 +79,91 @@ $persons = $stmt->fetchAll();
 
                                         <tbody>
                                             <?php $i = 1;
-                                            foreach ($persons as $person) { ?>
-                                                <tr class="clickable-row">
+foreach ($persons as $person) { ?>
+                                            <tr class="clickable-row">
 
-                                                    <td class="col-3 text-center"><strong> <a style="text-decoration: none; color:black;" href="./persondetail.php?id=<?= $person->cust_id ?>"><?php if (($person->total_credit) > 0) {
-                                                                                                                                                                                                    echo "بستانکار";
-                                                                                                                                                                                                } elseif (($person->total_credit) == 0) {
-                                                                                                                                                                                                    echo "-";
-                                                                                                                                                                                                } else {
-                                                                                                                                                                                                    echo "بدهکار";
-                                                                                                                                                                                                } ?></a></strong>
-                                                    </td>
-                                                    <td class="col-3 text-center"><strong> <a style="text-decoration: none; color:black;" href="./persondetail.php?id=<?= $person->cust_id ?>"><?= abs($person->total_credit) ?></a>
-                                                        </strong></td>
-                                                    <td class="col-3 text-center"><strong><a style="text-decoration: none; color:black;" href="./persondetail.php?id=<?= $person->cust_id ?>"><?= $person->cust_name ?></a>
-                                                        </strong></td>
-                                                    <td class="col-3 text-center"><strong> <a style="text-decoration: none; color:black;" href="./persondetail.php?id=<?= $person->cust_id ?>"><?= $i ?></a>
-                                                        </strong></td>
+                                                <td class="col-3 text-center"><strong> <a
+                                                            style="text-decoration: none; color:black;"
+                                                            href="./persondetail.php?id=<?= $person->cust_id ?>"><?php if (($person->total_credit) > 0) {
+                                                                echo "بستانکار";
+                                                            } elseif (($person->total_credit) == 0) {
+                                                                echo "-";
+                                                            } else {
+                                                                echo "بدهکار";
+                                                            } ?></a></strong>
+                                                </td>
+                                                <td class="col-3 text-center"><strong> <a
+                                                            style="text-decoration: none; color:black;"
+                                                            href="./persondetail.php?id=<?= $person->cust_id ?>"><?= abs($person->total_credit) ?></a>
+                                                    </strong></td>
+                                                <td class="col-3 text-center"><strong><a
+                                                            style="text-decoration: none; color:black;"
+                                                            href="./persondetail.php?id=<?= $person->cust_id ?>"><?= $person->cust_name ?></a>
+                                                    </strong></td>
+                                                <td class="col-3 text-center"><strong> <a
+                                                            style="text-decoration: none; color:black;"
+                                                            href="./persondetail.php?id=<?= $person->cust_id ?>"><?= $i ?></a>
+                                                    </strong></td>
 
-                                                </tr>
+                                            </tr>
                                             <?php ++$i;
-                                            } ?>
+} ?>
                                     </table>
                                     <script>
-                                        function sortTable(n) {
-                                            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-                                            table = document.getElementById("myTable2");
-                                            switching = true;
-                                            // Set the sorting direction to ascending:
-                                            dir = "asc";
-                                            /* Make a loop that will continue until
-                                            no switching has been done: */
-                                            while (switching) {
-                                                // Start by saying: no switching is done:
-                                                switching = false;
-                                                rows = table.rows;
-                                                /* Loop through all table rows (except the
-                                                first, which contains table headers): */
-                                                for (i = 1; i < (rows.length - 1); i++) {
-                                                    // Start by saying there should be no switching:
-                                                    shouldSwitch = false;
-                                                    /* Get the two elements you want to compare,
-                                                    one from current row and one from the next: */
-                                                    x = rows[i].getElementsByTagName("TD")[n];
-                                                    y = rows[i + 1].getElementsByTagName("TD")[n];
-                                                    /* Check if the two rows should switch place,
-                                                    based on the direction, asc or desc: */
-                                                    if (dir == "asc") {
-                                                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                                                            // If so, mark as a switch and break the loop:
-                                                            shouldSwitch = true;
-                                                            break;
-                                                        }
-                                                    } else if (dir == "desc") {
-                                                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                                                            // If so, mark as a switch and break the loop:
-                                                            shouldSwitch = true;
-                                                            break;
-                                                        }
+                                    function sortTable(n) {
+                                        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+                                        table = document.getElementById("myTable2");
+                                        switching = true;
+                                        // Set the sorting direction to ascending:
+                                        dir = "asc";
+                                        /* Make a loop that will continue until
+                                        no switching has been done: */
+                                        while (switching) {
+                                            // Start by saying: no switching is done:
+                                            switching = false;
+                                            rows = table.rows;
+                                            /* Loop through all table rows (except the
+                                            first, which contains table headers): */
+                                            for (i = 1; i < (rows.length - 1); i++) {
+                                                // Start by saying there should be no switching:
+                                                shouldSwitch = false;
+                                                /* Get the two elements you want to compare,
+                                                one from current row and one from the next: */
+                                                x = rows[i].getElementsByTagName("TD")[n];
+                                                y = rows[i + 1].getElementsByTagName("TD")[n];
+                                                /* Check if the two rows should switch place,
+                                                based on the direction, asc or desc: */
+                                                if (dir == "asc") {
+                                                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                                                        // If so, mark as a switch and break the loop:
+                                                        shouldSwitch = true;
+                                                        break;
                                                     }
-                                                }
-                                                if (shouldSwitch) {
-                                                    /* If a switch has been marked, make the switch
-                                                    and mark that a switch has been done: */
-                                                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                                                    switching = true;
-                                                    // Each time a switch is done, increase this count by 1:
-                                                    switchcount++;
-                                                } else {
-                                                    /* If no switching has been done AND the direction is "asc",
-                                                    set the direction to "desc" and run the while loop again. */
-                                                    if (switchcount == 0 && dir == "asc") {
-                                                        dir = "desc";
-                                                        switching = true;
+                                                } else if (dir == "desc") {
+                                                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                                                        // If so, mark as a switch and break the loop:
+                                                        shouldSwitch = true;
+                                                        break;
                                                     }
                                                 }
                                             }
+                                            if (shouldSwitch) {
+                                                /* If a switch has been marked, make the switch
+                                                and mark that a switch has been done: */
+                                                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                                                switching = true;
+                                                // Each time a switch is done, increase this count by 1:
+                                                switchcount++;
+                                            } else {
+                                                /* If no switching has been done AND the direction is "asc",
+                                                set the direction to "desc" and run the while loop again. */
+                                                if (switchcount == 0 && dir == "asc") {
+                                                    dir = "desc";
+                                                    switching = true;
+                                                }
+                                            }
                                         }
+                                    }
                                     </script>
                                 </div>
 
@@ -177,12 +190,12 @@ $persons = $stmt->fetchAll();
 
 
         <script>
-            var el = document.getElementById("wrapper")
-            var toggleButton = document.getElementById("menu-toggle")
+        var el = document.getElementById("wrapper")
+        var toggleButton = document.getElementById("menu-toggle")
 
-            toggleButton.onclick = function() {
-                el.classList.toggle("toggled")
-            }
+        toggleButton.onclick = function() {
+            el.classList.toggle("toggled")
+        }
         </script>
 
 </body>

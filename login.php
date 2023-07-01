@@ -4,7 +4,7 @@ require "./assets/Helper/helpers.php";
 global $db;
 $token = false;
 if (isset($_SESSION['username'])) {
-    header("location:index.php");
+    header("location:menu.php");
 }
 $errors = [];
 if (isset($_POST['submit'])) {
@@ -89,8 +89,10 @@ if (isset($_POST['submit'])) {
                             <div class="form-group was-validated">
                                 <div class="mb-3">
                                     <label for="username" class="form-label"> نام کاربری </label>
-                                    <input type="text" class="form-control" id="username" name="username" required <?php
-                                                                                                                    if (isset($_COOKIE['username']) && !(empty($_COOKIE['username']))) : ?> value="<?= $_COOKIE['username'] ?>" <?php endif; ?>>
+                                    <input type="text" class="form-control" id="username" name="username" required
+                                        <?php
+                                                                                                                    if (isset($_COOKIE['username']) && !(empty($_COOKIE['username']))) : ?>
+                                        value="<?= $_COOKIE['username'] ?>" <?php endif; ?>>
                                     <div class="invalid-feedback">
                                         <span> نام کاربری خود را وارد کنید </span>
                                     </div>
@@ -100,8 +102,10 @@ if (isset($_POST['submit'])) {
                             <div class="form-group was-validated">
                                 <div class="mb-3">
                                     <label for="password" class="form-label"> کلمه عبور </label>
-                                    <input type="password" class="form-control" id="password" name="password" required <?php
-                                                                                                                        if (isset($_COOKIE['password']) && !(empty($_COOKIE['password']))) : ?> value="<?= $_COOKIE['password'] ?>" <?php endif; ?>>
+                                    <input type="password" class="form-control" id="password" name="password" required
+                                        <?php
+                                                                                                                        if (isset($_COOKIE['password']) && !(empty($_COOKIE['password']))) : ?>
+                                        value="<?= $_COOKIE['password'] ?>" <?php endif; ?>>
                                     <div class="invalid-feedback">
                                         لطفا پسوورد خود را وارد کنید
                                     </div>
@@ -126,7 +130,7 @@ if (isset($_POST['submit'])) {
             </script>
             ";
                             }
-                            ?>
+?>
                         </form>
 
                     </div>

@@ -3,18 +3,23 @@ require "./assets/Helper/dataBase.php"; //"./Helper/dataBase.php";
 require "./assets/Helper/helpers.php";
 require "./assets/Helper/jdf.php";
 if (!(isset($_SESSION['username']))) {
-     header("location:login.php");
+    header("location:login.php");
 }
-global $db;
-// $sql = "SELECT buyfactor.buy_date,buyfactor.product_qty,buyfactor.factor_fi,products.product_name,sellfactors.sell_date,sellfactors.product_qty as sell_qty,sellfactors.factor_fi as sell_fi, FROM buyfactor,products,sellfactors where buyfactor.  "
+if($_SESSION['permition'] == '1' || $_SESSION['permition'] =='2') {
+
+    global $db;
+    // $sql = "SELECT buyfactor.buy_date,buyfactor.product_qty,buyfactor.factor_fi,products.product_name,sellfactors.sell_date,sellfactors.product_qty as sell_qty,sellfactors.factor_fi as sell_fi, FROM buyfactor,products,sellfactors where buyfactor.  "
 
 
-$sql = "SELECT * from personaccount where account_type ='3'";
-$stmt = $db->prepare($sql);
-$stmt->execute();
-$banks = $stmt->fetchAll();
+    $sql = "SELECT * from personaccount where account_type ='3'";
+    $stmt = $db->prepare($sql);
+    $stmt->execute();
+    $banks = $stmt->fetchAll();
 
+} else {
+    header("location:./menu.php");
 
+}
 
 
 ?>
@@ -42,8 +47,8 @@ $banks = $stmt->fetchAll();
 
         <?php
           require_once "./template/sidebar.php";
-          require_once "./template/header.php";
-          ?>
+require_once "./template/header.php";
+?>
         <div class="purchasecontainer">
             <div class="container-fluid invoice-container">
 
@@ -79,18 +84,18 @@ $banks = $stmt->fetchAll();
                                         <tbody>
 
                                             <?php $i = 1;
-                                                       foreach ($banks as $bank) { ?>
+foreach ($banks as $bank) { ?>
                                             <tr class="clickable-row">
 
                                                 <td class="col-3 text-center"><strong> <a
                                                             style="text-decoration: none; color:black;"
                                                             href="./persondetail.php?id=<?= $bank->cust_id ?>"><?php if (($bank->total_credit) > 0) {
-                                                                                                                                                                                                                  echo "بستانکار";
-                                                                                                                                                                                                             } elseif (($bank->total_credit) == 0) {
-                                                                                                                                                                                                                  echo "-";
-                                                                                                                                                                                                             } else {
-                                                                                                                                                                                                                  echo "بدهکار";
-                                                                                                                                                                                                             } ?></a></strong>
+                                                                echo "بستانکار";
+                                                            } elseif (($bank->total_credit) == 0) {
+                                                                echo "-";
+                                                            } else {
+                                                                echo "بدهکار";
+                                                            } ?></a></strong>
                                                 </td>
                                                 <td class="col-3 text-center"><strong> <a
                                                             style="text-decoration: none; color:black;"
@@ -107,7 +112,7 @@ $banks = $stmt->fetchAll();
 
                                             </tr>
                                             <?php ++$i;
-                                                       } ?>
+} ?>
                                     </table>
                                     <script>
                                     function sortTable(n) {

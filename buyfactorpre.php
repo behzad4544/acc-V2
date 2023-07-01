@@ -13,10 +13,10 @@ if (isset($_GET['id']) && !(empty($_GET['id']) && !($_GET['id'] == ""))) {
     $stmt->execute([$id]);
     $factor = $stmt->fetch();
     if ($factor == null) {
-        header("location:index.php");
+        header("location:.php");
     }
 } else {
-    header("location:index.php");
+    header("location:menu.php");
 
 }
 ?>

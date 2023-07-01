@@ -25,14 +25,10 @@ if (isset($_SESSION['permition']) && !(empty($_SESSION['permition'])) && isset($
             <i></i> سامانه حسابداری
         </a>
         <?php foreach ($menus as $menu) : ?>
-            <a href="<?= $menu->url ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-                <?= $menu->menu_name ?>
-            </a> <?php endforeach; ?>
+        <a href="<?= $menu->url ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+            <?= $menu->menu_name ?>
+        </a> <?php endforeach; ?>
 
-
-        <a href="./logout.php" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i></i> خروج
-        </a>
 
 
 

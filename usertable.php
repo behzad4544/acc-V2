@@ -3,12 +3,19 @@ require "./assets/Helper/dataBase.php"; //"./Helper/dataBase.php";
 require "./assets/Helper/helpers.php";
 global $db;
 if (!(isset($_SESSION['username']))) {
-     header("location:./login.php");
+    header("location:./login.php");
 }
-$sql = "SELECT users.*,permitions.permition_name from users,permitions where users.permition_id =permitions.permition_id ";
-$stmt = $db->prepare($sql);
-$stmt->execute();
-$users = $stmt->fetchAll();
+if($_SESSION['permition'] == '1') {
+
+    $sql = "SELECT users.*,permitions.permition_name from users,permitions where users.permition_id =permitions.permition_id ";
+    $stmt = $db->prepare($sql);
+    $stmt->execute();
+    $users = $stmt->fetchAll();
+} else {
+
+    header("location:./menu.php");
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -34,8 +41,8 @@ $users = $stmt->fetchAll();
 
         <?php
           require_once "./template/sidebar.php";
-          require_once "./template/header.php";
-          ?>
+require_once "./template/header.php";
+?>
         <div class="purchasecontainer">
             <div class="container-fluid invoice-container">
 
@@ -63,14 +70,14 @@ $users = $stmt->fetchAll();
                                         </thead>
                                         <tbody>
                                             <?php $i = 1;
-                                                       foreach ($users as $user) { ?>
+foreach ($users as $user) { ?>
                                             <tr>
                                                 <td class="col-3 text-center"><strong>
                                                         <?php if ($user->user_active == 2) {
-                                                                                echo "فعال";
-                                                                           } else {
-                                                                                echo "غیرفعال";
-                                                                           } ?> </strong></td>
+                                                            echo "فعال";
+                                                        } else {
+                                                            echo "غیرفعال";
+                                                        } ?> </strong></td>
                                                 <td class="col-3 text-center"><strong> <?= $user->permition_name ?>
                                                     </strong>
                                                 <td class="col-3 text-center"><strong> <?= $user->user_name ?> </strong>
@@ -78,7 +85,7 @@ $users = $stmt->fetchAll();
                                                 <td class="col-3 text-center"><strong><?= $i ?></strong></td>
                                             </tr>
                                             <?php ++$i;
-                                                       } ?>
+} ?>
                                         </tbody>
 
                                     </table>

@@ -6,44 +6,49 @@ global $i;
 if (!(isset($_SESSION['username']))) {
     header("location:login.php");
 }
-if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
-    $id = $_GET['id'];
-    $sql = "SELECT * from personaccount WHERE cust_id =?";
-    $stmt = $db->prepare($sql);
-    $stmt->execute([$id]);
-    $person = $stmt->fetch();
-    if ($person == null) {
-        header("location:personlist.php");
+if($_SESSION['permition'] == '1' || $_SESSION['permition'] =='2') {
+    if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
+        $id = $_GET['id'];
+        $sql = "SELECT * from personaccount WHERE cust_id =?";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$id]);
+        $person = $stmt->fetch();
+        if ($person == null) {
+            header("location:personlist.php");
+        } else {
+            // $sql = "SELECT buyfactor.buy_date,buyfactor.product_qty as buy_qty,buyfactor.factor_fi as buy_fi,products.product_name,sellfactors.sell_date,sellfactors.product_qty as sell_qty,sellfactors.factor_fi as sell_fi, FROM buyfactor,products,sellfactors where buyfactor.product_id=sellfactors.product_id and buyfactor.product_id=? and sellfactors.product_id=? order by ";
+            $sql = "SELECT buyfactor.buyfactor_id,buyfactor.cust_id,buyfactor.buy_date,buyfactor.buy_sum,credits.credit_after from buyfactor,credits where buyfactor.cust_id=? and buyfactor.cust_id=credits.personaccount_id and credits.buyfactor_id = buyfactor.buyfactor_id   order by buyfactor.buy_date ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$id]);
+            $buys = $stmt->fetchAll();
+
+
+            $sql = "SELECT sellfactors.sellfactor_id,sellfactors.sell_date,sellfactors.sell_sum,credits.credit_after from sellfactors,credits where sellfactors.cust_id=? and sellfactors.cust_id=credits.personaccount_id and credits.sellfactor_id = sellfactors.sellfactor_id order by sellfactors.sell_date ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$id]);
+            $sells = $stmt->fetchAll();
+
+
+            $sql = "SELECT transfer.*,credits.credit_after from transfer,credits where transfersend_from = ? and transfer.transfersend_id =credits.transfer_id and transfer.transfersend_from =credits.personaccount_id";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$id]);
+            $transfers_from = $stmt->fetchAll();
+
+
+
+            $sql = "SELECT transfer.*,credits.credit_after from transfer,credits where transfersend_to = ?and transfer.transfersend_id =credits.transfer_id and transfer.transfersend_to =credits.personaccount_id ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$id]);
+            $transfers_to = $stmt->fetchAll();
+
+
+        }
     } else {
-        // $sql = "SELECT buyfactor.buy_date,buyfactor.product_qty as buy_qty,buyfactor.factor_fi as buy_fi,products.product_name,sellfactors.sell_date,sellfactors.product_qty as sell_qty,sellfactors.factor_fi as sell_fi, FROM buyfactor,products,sellfactors where buyfactor.product_id=sellfactors.product_id and buyfactor.product_id=? and sellfactors.product_id=? order by ";
-        $sql = "SELECT buyfactor.buyfactor_id,buyfactor.cust_id,buyfactor.buy_date,buyfactor.buy_sum,credits.credit_after from buyfactor,credits where buyfactor.cust_id=? and buyfactor.cust_id=credits.personaccount_id and credits.buyfactor_id = buyfactor.buyfactor_id   order by buyfactor.buy_date ";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$id]);
-        $buys = $stmt->fetchAll();
-
-
-        $sql = "SELECT sellfactors.sellfactor_id,sellfactors.sell_date,sellfactors.sell_sum,credits.credit_after from sellfactors,credits where sellfactors.cust_id=? and sellfactors.cust_id=credits.personaccount_id and credits.sellfactor_id = sellfactors.sellfactor_id order by sellfactors.sell_date ";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$id]);
-        $sells = $stmt->fetchAll();
-
-
-        $sql = "SELECT transfer.*,credits.credit_after from transfer,credits where transfersend_from = ? and transfer.transfersend_id =credits.transfer_id and transfer.transfersend_from =credits.personaccount_id";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$id]);
-        $transfers_from = $stmt->fetchAll();
-
-
-
-        $sql = "SELECT transfer.*,credits.credit_after from transfer,credits where transfersend_to = ?and transfer.transfersend_id =credits.transfer_id and transfer.transfersend_to =credits.personaccount_id ";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$id]);
-        $transfers_to = $stmt->fetchAll();
-
+        header("location:personlist.php");
 
     }
 } else {
-    header("location:personlist.php");
+    header("location:./menu.php");
 
 }
 ?>

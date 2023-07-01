@@ -6,28 +6,35 @@ global $db;
 if (!(isset($_SESSION['username']))) {
     header("location:login.php");
 } else {
-    if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
-        $id = $_GET['id'];
-        $sql = "SELECT * from transfer WHERE transfersend_id =?";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$id]);
-        $transfer = $stmt->fetch();
-        if ($transfer == null) {
-            header("location:index.php");
-        } else {
-            $sql = "SELECT transfer.transfersend_date, personaccount.cust_name, transfer.transfersend_price,personaccount.total_credit from transfer,personaccount WHERE transfer.transfersend_from = personaccount.cust_id and transfer.transfersend_id = ?";
-            $stmt = $db->prepare($sql);
-            $stmt->execute([$id]);
-            $bestankar = $stmt->fetch();
+    if($_SESSION['permition'] == '1' || $_SESSION['permition'] =='2') {
 
-            $sql = "SELECT transfer.transfersend_date, personaccount.cust_name, transfer.transfersend_price,personaccount.total_credit from transfer,personaccount WHERE transfer.transfersend_to = personaccount.cust_id and transfer.transfersend_id = ?";
+        if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
+            $id = $_GET['id'];
+            $sql = "SELECT * from transfer WHERE transfersend_id =?";
             $stmt = $db->prepare($sql);
             $stmt->execute([$id]);
-            $bedehkar = $stmt->fetch();
+            $transfer = $stmt->fetch();
+            if ($transfer == null) {
+                header("location:index.php");
+            } else {
+                $sql = "SELECT transfer.transfersend_date, personaccount.cust_name, transfer.transfersend_price,personaccount.total_credit from transfer,personaccount WHERE transfer.transfersend_from = personaccount.cust_id and transfer.transfersend_id = ?";
+                $stmt = $db->prepare($sql);
+                $stmt->execute([$id]);
+                $bestankar = $stmt->fetch();
+
+                $sql = "SELECT transfer.transfersend_date, personaccount.cust_name, transfer.transfersend_price,personaccount.total_credit from transfer,personaccount WHERE transfer.transfersend_to = personaccount.cust_id and transfer.transfersend_id = ?";
+                $stmt = $db->prepare($sql);
+                $stmt->execute([$id]);
+                $bedehkar = $stmt->fetch();
+            }
+        } else {
+            header("location:./menu.php");
         }
     } else {
-        header("location:index.php");
+        header("location:./menu.php");
+
     }
+
 }
 ?>
 
@@ -55,8 +62,8 @@ if (!(isset($_SESSION['username']))) {
 
         <?php
         require_once "./template/sidebar.php";
-        require_once "./template/header.php";
-        ?>
+require_once "./template/header.php";
+?>
         <div class="purchasecontainer">
             <div class="container-fluid invoice-container">
 
@@ -131,20 +138,20 @@ if (!(isset($_SESSION['username']))) {
                     <p class="text-end">مانده <?= $bestankar->cust_name ?> تا این تاریخ :
                         <?= number_format(abs($bestankar->total_credit)) ?>
                         <?php if(($bestankar->total_credit)> 0) {
-            echo "بستانکار";
-        } else {
-            echo "بدهکار";
-        } ?></p>
+                            echo "بستانکار";
+                        } else {
+                            echo "بدهکار";
+                        } ?></p>
 
                 </footer>
 
                 <footer class="text-right mt-4">
                     <p class="text-end"> مانده <?= $bedehkar->cust_name ?> تا این تاریخ :
                         <?= number_format(abs($bedehkar->total_credit)) ?> <?php if(($bestankar->total_credit)< 0) {
-        echo "بستانکار";
-    } else {
-        echo "بدهکار";
-    } ?></p>
+                            echo "بستانکار";
+                        } else {
+                            echo "بدهکار";
+                        } ?></p>
 
                 </footer>
 

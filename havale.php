@@ -6,92 +6,101 @@ $errors = [];
 if (!(isset($_SESSION['username']))) {
     header("location:./login.php");
 }
-$sql = "SELECT * FROM personaccount where (account_type='1' or account_type='3')";
-$stmt = $db->prepare($sql);
-$stmt->execute([]);
-$customers = $stmt->fetchAll();
-if (isset($_POST['submit'])) {
-    date_default_timezone_set('Iran');
-    $realTimestamp = substr($_POST['havale_date'], 0, 10);
-    $bestankar = $_POST['bestankar'];
-    $bedehkar = $_POST['bedehkar'];
-    $havale_fi = $_POST['havale_fi'];
-    $havale_explanation = $_POST['havale_explanation'];
-    if (!($bestankar == $bedehkar)) {
-        $tok = 1;
-        $sql = "INSERT INTO transfer SET transfersend_date=?,transfersend_from=?,transfersend_to=?,transfersend_price=?,useredit_id=?,transfersend_explanation=?";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$realTimestamp, $bestankar, $bedehkar, $havale_fi, $_SESSION['user_id'], $havale_explanation]);
-        $id = $db->lastInsertId();
-        $sql = "SELECT * FROM personaccount WHERE cust_id=?";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$bestankar]);
-        $bestan = $stmt->fetch();
-        $ttl_bestan_old = $bestan->total_credit;
-        if ($ttl_bestan_old < 0) {
-            $ttl_bestan_new = $ttl_bestan_old + $havale_fi;
+if($_SESSION['permition'] == '1' || $_SESSION['permition'] =='2') {
+
+    $sql = "SELECT * FROM personaccount where (account_type='1' or account_type='3')";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([]);
+    $customers = $stmt->fetchAll();
+    if (isset($_POST['submit'])) {
+        date_default_timezone_set('Iran');
+        $realTimestamp = substr($_POST['havale_date'], 0, 10);
+        $bestankar = $_POST['bestankar'];
+        $bedehkar = $_POST['bedehkar'];
+        $havale_fi = $_POST['havale_fi'];
+        $havale_explanation = $_POST['havale_explanation'];
+        if (!($bestankar == $bedehkar)) {
+            $tok = 1;
+            $sql = "INSERT INTO transfer SET transfersend_date=?,transfersend_from=?,transfersend_to=?,transfersend_price=?,useredit_id=?,transfersend_explanation=?";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$realTimestamp,$bestankar,$bedehkar,$havale_fi,$_SESSION['user_id'],$havale_explanation]);
+            $id = $db->lastInsertId();
+            $sql = "SELECT * FROM personaccount WHERE cust_id=?";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$bestankar]);
+            $bestan= $stmt->fetch();
+            $ttl_bestan_old = $bestan->total_credit;
+            if($ttl_bestan_old < 0) {
+                $ttl_bestan_new = $ttl_bestan_old + $havale_fi;
+            } else {
+                $ttl_bestan_new = $ttl_bestan_old - $havale_fi;
+
+            }
+            $sql = "INSERT INTO credits SET personaccount_id=?,credit=?,transfer_id=?,credit_after=?,edit_user=?,created_at =?";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$bestankar,$havale_fi,$id,$ttl_bestan_new,$_SESSION['user_id'],$realTimestamp]);
+            $id1 = $db->lastInsertId();
+
+
+
+            $sql = "SELECT * FROM personaccount WHERE cust_id=?";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$bedehkar]);
+            $bedeh= $stmt->fetch();
+            $ttl_bedeh_old = $bedeh->total_credit;
+            if($ttl_bedeh_old < 0) {
+                $ttl_bedeh_new = $ttl_bedeh_old + $havale_fi;
+            } else {
+                $ttl_bedeh_new = $ttl_bedeh_old - $havale_fi;
+
+            }
+            $sql = "INSERT INTO credits SET personaccount_id=?,credit=?,transfer_id=?,credit_after=?,edit_user=?,created_at =?";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$bedehkar,-$havale_fi,$id,$ttl_bedeh_new,$_SESSION['user_id'],$realTimestamp]);
+            $id2 = $db->lastInsertId();
+
+
+            $sql = "SELECT * FROM personaccount WHERE cust_id=? ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$bestankar]);
+            $res1 = $stmt->fetch();
+            $total_bestan_old = $res1->total_credit;
+            if($total_bestan_old < 0) {
+                $total_bestan_new = $total_bestan_old + $havale_fi;
+            } else {
+                $total_bestan_new = $total_bestan_old - $havale_fi;
+
+            }        $sql = "UPDATE personaccount SET total_credit=? WHERE cust_id=? ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$total_bestan_new,$bestankar]);
+
+
+            $sql = "SELECT * FROM personaccount WHERE cust_id=? ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$bedehkar]);
+            $res2 = $stmt->fetch();
+            $total_bedeh_old = $res2->total_credit;
+            if($total_bedeh_old < 0) {
+                $total_bedeh_new = $total_bedeh_old + $havale_fi;
+            } else {
+                $total_bedeh_new = $total_bedeh_old - $havale_fi;
+
+            }        $sql = "UPDATE personaccount SET total_credit=? WHERE cust_id=? ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$total_bedeh_new,$bedehkar]);
+
+
+            $bedehkar_name = $res2->cust_name;
+            $bestankar_name = $res1->cust_name;
+
         } else {
-            $ttl_bestan_new = $ttl_bestan_old - $havale_fi;
+            $errors[] = "هر دو شخص نمیتواند یکی باشد";
+            $tok = 0;
         }
-        $sql = "INSERT INTO credits SET personaccount_id=?,credit=?,transfer_id=?,credit_after=?,edit_user=?,created_at =?";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$bestankar, $havale_fi, $id, $ttl_bestan_new, $_SESSION['user_id'], $realTimestamp]);
-        $id1 = $db->lastInsertId();
-
-
-
-        $sql = "SELECT * FROM personaccount WHERE cust_id=?";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$bedehkar]);
-        $bedeh = $stmt->fetch();
-        $ttl_bedeh_old = $bedeh->total_credit;
-        if ($ttl_bedeh_old < 0) {
-            $ttl_bedeh_new = $ttl_bedeh_old + $havale_fi;
-        } else {
-            $ttl_bedeh_new = $ttl_bedeh_old - $havale_fi;
-        }
-        $sql = "INSERT INTO credits SET personaccount_id=?,credit=?,transfer_id=?,credit_after=?,edit_user=?,created_at =?";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$bedehkar, -$havale_fi, $id, $ttl_bedeh_new, $_SESSION['user_id'], $realTimestamp]);
-        $id2 = $db->lastInsertId();
-
-
-        $sql = "SELECT * FROM personaccount WHERE cust_id=? ";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$bestankar]);
-        $res1 = $stmt->fetch();
-        $total_bestan_old = $res1->total_credit;
-        if ($total_bestan_old < 0) {
-            $total_bestan_new = $total_bestan_old + $havale_fi;
-        } else {
-            $total_bestan_new = $total_bestan_old - $havale_fi;
-        }
-        $sql = "UPDATE personaccount SET total_credit=? WHERE cust_id=? ";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$total_bestan_new, $bestankar]);
-
-
-        $sql = "SELECT * FROM personaccount WHERE cust_id=? ";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$bedehkar]);
-        $res2 = $stmt->fetch();
-        $total_bedeh_old = $res2->total_credit;
-        if ($total_bedeh_old < 0) {
-            $total_bedeh_new = $total_bedeh_old + $havale_fi;
-        } else {
-            $total_bedeh_new = $total_bedeh_old - $havale_fi;
-        }
-        $sql = "UPDATE personaccount SET total_credit=? WHERE cust_id=? ";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$total_bedeh_new, $bedehkar]);
-
-
-        $bedehkar_name = $res2->cust_name;
-        $bestankar_name = $res1->cust_name;
-    } else {
-        $errors[] = "هر دو شخص نمیتواند یکی باشد";
-        $tok = 0;
     }
+} else {
+    header("location:./menu.php");
+
 }
 ?>
 
@@ -118,8 +127,8 @@ if (isset($_POST['submit'])) {
 
         <?php
         require_once "./template/sidebar.php";
-        require_once "./template/header.php";
-        ?>
+require_once "./template/header.php";
+?>
 
         <div class="flex wrapper">
             <div class="title">
@@ -134,9 +143,9 @@ if (isset($_POST['submit'])) {
                                 <select name="bestankar" required>
                                     <option value="">لطفا طرف حساب بدهکار را انتخاب فرمایید</option>
                                     <?php foreach ($customers as $customer) : ?>
-                                        <option value="<?= $customer->cust_id ?>" class="inputBox">
-                                            <?= $customer->cust_name ?>
-                                        </option>
+                                    <option value="<?= $customer->cust_id ?>" class="inputBox">
+                                        <?= $customer->cust_name ?>
+                                    </option>
                                     <?php endforeach; ?>
                                 </select>
                                 <div class="invalid-feedback">
@@ -153,9 +162,9 @@ if (isset($_POST['submit'])) {
                                 <select name="bedehkar" required>
                                     <option value="">لطفا طرف حساب بستانکار انتخاب فرمایید</option>
                                     <?php foreach ($customers as $customer) : ?>
-                                        <option value="<?= $customer->cust_id ?>" class="inputBox">
-                                            <?= $customer->cust_name ?>
-                                        </option>
+                                    <option value="<?= $customer->cust_id ?>" class="inputBox">
+                                        <?= $customer->cust_name ?>
+                                    </option>
                                     <?php endforeach; ?>
                                 </select>
                                 <div class="invalid-feedback">
@@ -168,7 +177,8 @@ if (isset($_POST['submit'])) {
                     <div class="input-field">
                         <div class="mb-3">
                             <label class="form-label"> تاریخ </label>
-                            <input type="text" class="form-control d-none" id="havale_date" name="havale_date" required autofocus>
+                            <input type="text" class="form-control d-none" id="havale_date" name="havale_date" required
+                                autofocus>
                             <input type="text" class="form-control" id="havale_view" required autofocus>
                             <div class="invalid-feedback">
                                 <span> تاریخ را وارد کنید </span>
@@ -197,8 +207,8 @@ if (isset($_POST['submit'])) {
                         <input type="submit" value="ثبت حواله" class="btn btn-success" name=" submit" id="submit">
                     </div>
                     <?php
-                    if (isset($_POST['submit']) && $tok == 1) {
-                        echo "
+            if (isset($_POST['submit']) && $tok == 1) {
+                echo "
         <script>
         setTimeout(function() {
             swal('حواله شماره {$id} ثبت شد','حواله شماره {$id1} برای {$bestankar_name} و حواله شماره {$id2} برای {$bedehkar_name} ثبت شد', 'success')
@@ -208,8 +218,8 @@ if (isset($_POST['submit'])) {
         }, 5000);
         </script>
         ";
-                    }
-                    ?>
+            }
+?>
                 </form>
 
 
@@ -223,29 +233,29 @@ if (isset($_POST['submit'])) {
     <script src="./assets/Public/jalalidatepicker/persian-datepicker.min.js"></script>
     <script src='./assets/JS/sweet-alert.min.js'></script>
     <script>
-        $(document).ready(function() {
-            $("#havale_view").persianDatepicker({
-                format: 'YYYY-MM-DD',
-                toolbax: {
-                    calendarSwitch: {
-                        enabled: true
-                    }
-                },
-                observer: true,
-                altField: '#havale_date'
-            })
-        });
+    $(document).ready(function() {
+        $("#havale_view").persianDatepicker({
+            format: 'YYYY-MM-DD',
+            toolbax: {
+                calendarSwitch: {
+                    enabled: true
+                }
+            },
+            observer: true,
+            altField: '#havale_date'
+        })
+    });
     </script>
 
 
 
     <script>
-        var el = document.getElementById("wrapper")
-        var toggleButton = document.getElementById("menu-toggle")
+    var el = document.getElementById("wrapper")
+    var toggleButton = document.getElementById("menu-toggle")
 
-        toggleButton.onclick = function() {
-            el.classList.toggle("toggled")
-        }
+    toggleButton.onclick = function() {
+        el.classList.toggle("toggled")
+    }
     </script>
     </div>
 </body>

@@ -13,7 +13,7 @@ if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
     $stmt->execute([$id]);
     $factor = $stmt->fetch();
     if ($factor == null) {
-        header("location:index.php");
+        header("location:menu.php");
     } else {
         $sql = 'SELECT wearhouses.wearhouse_name from buyfactor,wearhouses where buyfactor.warehouse_id=wearhouses.wearhouse_id and  product_id=?';
         $stmt = $db->prepare($sql);
@@ -22,7 +22,7 @@ if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
         $anbar = $warehouse->wearhouse_name;
     }
 } else {
-    header("location:index.php");
+    header("location:menu.php");
 }
 ?>
 
@@ -50,8 +50,8 @@ if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
 
         <?php
         require_once "./template/sidebar.php";
-        require_once "./template/header.php";
-        ?>
+require_once "./template/header.php";
+?>
         <div class="purchasecontainer">
             <div class="container-fluid invoice-container">
                 <header>
@@ -128,12 +128,12 @@ if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
                                         <ion-icon name="menu-outline"></ion-icon>
                                         <tr>
                                             <td class="text-center"><strong> <?php
-                                                                                if (($factor->total_credit) > 0) {
-                                                                                    echo "(بستانکار)";
-                                                                                } else {
-                                                                                    echo "(بدهکار)";
-                                                                                }
-                                                                                ?>
+                                                                        if (($factor->total_credit) > 0) {
+                                                                            echo "(بستانکار)";
+                                                                        } else {
+                                                                            echo "(بدهکار)";
+                                                                        }
+?>
                                                     <?= number_format(abs($factor->total_credit)) ?> </strong></td>
                                             <td colspan="4" class="text-left"><strong> : مانده
                                                     <?= $factor->cust_name  ?> تا این
@@ -168,12 +168,12 @@ if (isset($_GET['id']) && !(empty($_GET['id'])) && !($_GET['id'] == "")) {
         <script src="./assets/JS/bootstrap5.bundle.min.js"></script>
 
         <script>
-            var el = document.getElementById("wrapper")
-            var toggleButton = document.getElementById("menu-toggle")
+        var el = document.getElementById("wrapper")
+        var toggleButton = document.getElementById("menu-toggle")
 
-            toggleButton.onclick = function() {
-                el.classList.toggle("toggled")
-            }
+        toggleButton.onclick = function() {
+            el.classList.toggle("toggled")
+        }
         </script>
 
 </body>

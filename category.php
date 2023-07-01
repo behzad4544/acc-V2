@@ -9,20 +9,21 @@ if (!(isset($_SESSION['username']))) {
 if (isset($_POST['submit'])) {
     $errors = [];
     date_default_timezone_set('Iran');
-    $unit = $_POST['unit_product'];
-    $sql = "SELECT * FROM units WHERE unit_name =? ";
+    $category=$_POST['category_product'];
+    $sql = "SELECT * FROM categories WHERE category_name =? ";
     $stmt = $db->prepare($sql);
-    $stmt->execute([$unit]);
-    $units = $stmt->fetch();
-    if ($units == null) {
+    $stmt->execute([$category]);
+    $categories = $stmt->fetch();
+    if($categories == null) {
         $token = 1;
-        $sql = "INSERT INTO units SET unit_name=? ";
+        $sql = "INSERT INTO categories SET category_name=? ";
         $stmt = $db->prepare($sql);
-        $stmt->execute([$unit]);
+        $stmt->execute([$category]);
     } else {
         $token = 0;
-        $errors[] = "این واحد کالا در سیستم موجود می باشد";
+        $errors[] = "این دسته بندی در سیستم موجود می باشد";
     }
+
 }
 
 
@@ -50,22 +51,22 @@ if (isset($_POST['submit'])) {
 
         <?php
         require_once "./template/sidebar.php";
-        require_once "./template/header.php";
-        ?>
+require_once "./template/header.php";
+?>
 
         <div class="flex wrappercount">
             <div class="title">
-                فرم تعریف واحد شمارش کالا
+                فرم تعریف دسته بندی جدید کالا
             </div>
 
             <div class="form form-group was-validated ">
                 <form method="POST" action="">
                     <div class="input-field">
                         <div class="mb-3">
-                            <label class="form-label"> نام واحد شمارش </label>
-                            <input type="text" placeholder="واحد کالا" name="unit_product" required>
+                            <label class="form-label"> نام دسته بندی جدید </label>
+                            <input type="text" placeholder="واحد کالا" name="category_product" required>
                             <div class="invalid-feedback">
-                                <span> نام واحد شمارش کالا را وارد کنید </span>
+                                <span> نام دسته بندی کالا را وارد کنید </span>
                             </div>
 
                         </div>
@@ -74,22 +75,22 @@ if (isset($_POST['submit'])) {
 
 
                     <div class="input-field">
-                        <input type="submit" value="ثبت واحد کالا" class="btn btn-success" name="submit" id="submit">
+                        <input type="submit" value="ثبت دسته بندی" class="btn btn-success" name="submit" id="submit">
                     </div>
                     <?php
-                    if (isset($_POST['submit']) && $token == 1) {
-                        echo "
+            if (isset($_POST['submit']) && $token == 1) {
+                echo "
         <script>
         setTimeout(function() {
-            swal('واحد {$_POST['unit_product']} اضافه شد','تا لحظاتی دیگر به داشبورد منتقل می شوید', 'success')
+            swal('دسته بندی {$_POST['category_product']} اضافه شد','تا لحظاتی دیگر به داشبورد منتقل می شوید', 'success')
         }, 1);
         window.setTimeout(function() {
             window.location.replace('./menu.php');
         }, 5000);
         </script>
         ";
-                    }
-                    ?>
+            }
+?>
                 </form>
 
 
@@ -102,12 +103,12 @@ if (isset($_POST['submit'])) {
 
 
     <script>
-        var el = document.getElementById("wrapper")
-        var toggleButton = document.getElementById("menu-toggle")
+    var el = document.getElementById("wrapper")
+    var toggleButton = document.getElementById("menu-toggle")
 
-        toggleButton.onclick = function() {
-            el.classList.toggle("toggled")
-        }
+    toggleButton.onclick = function() {
+        el.classList.toggle("toggled")
+    }
     </script>
     </div>
 </body>
