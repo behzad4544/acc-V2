@@ -113,9 +113,9 @@ require_once "./template/header.php";
                                                 <th onclick="sortTable(1)" class="col-3 text-center"><strong>مانده
                                                     </strong></th>
                                                 <th onclick="sortTable(2)" class="col-3 text-center"><strong> مبلغ
-                                                        بستانکاری </strong></th>
+                                                        بدهکاری </strong></th>
                                                 <th onclick="sortTable(3)" class="col-3 text-center"><strong> مبلغ
-                                                        بدهکاری</strong></th>
+                                                        بستانکاری</strong></th>
                                                 <th onclick="sortTable(4)" class="col-3 text-center"><strong> شماره سند
                                                     </strong></th>
                                                 <th onclick="sortTable(5)" class="col-3 text-center"><strong> تاریخ
