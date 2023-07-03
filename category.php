@@ -73,7 +73,6 @@ require_once "./template/header.php";
                     </div>
 
 
-
                     <div class="input-field">
                         <input type="submit" value="ثبت دسته بندی" class="btn btn-success" name="submit" id="submit">
                     </div>
